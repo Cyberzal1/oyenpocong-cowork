@@ -649,6 +649,27 @@
 
   audio.volume = parseFloat(volumeSlider.value);
 
+  // --- autoplay: browsers always allow muted autoplay, so start there ---
+  audio.muted = true;
+  muteBtn.textContent = '🔇';
+  audio.play().catch(function () {});
+
+  // the moment the visitor does anything real (click/tap/key), unmute
+  // note: scroll is deliberately NOT included here — browsers don't count
+  // it as a "user gesture", so unmuting inside a scroll handler gets
+  // silently blocked and just wastes a listener
+  function unlockAudio() {
+    audio.muted = false;
+    muteBtn.textContent = '🔊';
+    audio.play().catch(function () {});
+    window.removeEventListener('click', unlockAudio);
+    window.removeEventListener('touchstart', unlockAudio);
+    window.removeEventListener('keydown', unlockAudio);
+  }
+  window.addEventListener('click', unlockAudio, { once: true, passive: true });
+  window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+  window.addEventListener('keydown', unlockAudio, { once: true });
+
   toggleBtn.addEventListener('click', function () {
     if (audio.paused) {
       audio.play().catch(function () {});
