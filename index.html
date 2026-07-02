@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Belajar Claude Cowork Bersama Oyen Berpocong</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --cream:#F3EFE6;
+    --cream-2:#EAE2CF;
+    --ink:#1C1B18;
+    --orange:#E4622D;
+    --orange-2:#F2A65A;
+    --teal:#3E8E82;
+    --violet:#8B7FC7;
+    --red:#D64545;
+    --cloth:#FFFFFF;
+    --fur:#EF8B3E;
+    --fur-dark:#C96A2B;
+    --disp:'Baloo 2', ui-rounded, 'Segoe UI', sans-serif;
+    --label:'Space Grotesk', ui-monospace, 'Courier New', monospace;
+    --body:'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; scroll-snap-type:y proximity;}
+  body{
+    margin:0;
+    background-color:var(--cream);
+    background-image:radial-gradient(rgba(28,27,24,0.05) 1px, transparent 1px);
+    background-size:15px 15px;
+    color:var(--ink);
+    font-family:var(--body);
+    overflow-x:hidden;
+    line-height:1.5;
+  }
+  h1,h2,h3{font-family:var(--disp); font-weight:800; margin:0 0 6px; line-height:1.08;}
+  p{margin:0 0 12px;}
+  :focus-visible{outline:3px solid var(--orange); outline-offset:3px; border-radius:4px;}
+
+  .rule{display:block; height:6px; width:70px; background:var(--orange); border-radius:4px; margin:10px 0 22px;}
+
+  .uilabel{
+    font-family:var(--label);
+    background:var(--cream-2);
+    border:1.6px solid var(--ink);
+    border-radius:6px;
+    padding:1px 8px;
+    font-weight:600;
+    font-size:0.9em;
+    white-space:nowrap;
+  }
+
+  /* ---------- layout shell ---------- */
+  .panel{
+    min-height:100svh;
+    padding:88px max(20px,6vw) 64px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    position:relative;
+    scroll-snap-align:start;
+    border-bottom:1.5px dashed rgba(28,27,24,.18);
+  }
+  .panel-inner{max-width:860px; margin:0 auto; width:100%;}
+  .paneltop{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:26px;
+  }
+  .brandmark{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--label); font-weight:700; font-size:.85rem;
+    letter-spacing:.02em; color:var(--ink); opacity:.75;
+  }
+  .brandmark .knot{width:16px; height:16px;}
+  .badge{
+    width:52px; height:52px; border-radius:50%;
+    border:2.4px solid var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--label); font-weight:700; font-size:.82rem;
+    background:var(--cloth); flex-shrink:0;
+  }
+  .eyebrow{
+    display:inline-block;
+    font-family:var(--label); font-weight:700; font-size:.78rem;
+    letter-spacing:.06em; color:var(--orange);
+    background:rgba(228,98,45,.1);
+    border:1.4px solid var(--orange);
+    border-radius:999px; padding:5px 14px; margin-bottom:14px;
+  }
+  h2{font-size:clamp(1.55rem,5vw,2.35rem);}
+
+  /* ---------- reveal on scroll ---------- */
+  .reveal{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.inview{opacity:1; transform:translateY(0);}
+  .reveal.d1{transition-delay:.05s;} .reveal.d2{transition-delay:.14s;} .reveal.d3{transition-delay:.23s;} .reveal.d4{transition-delay:.32s;}
+
+  /* ---------- mascot ---------- */
+  .mascot{display:block;}
+  .mascot svg{display:block; width:100%; height:100%;}
+  .float{animation:floaty 4.2s ease-in-out infinite;}
+  @keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+
+  /* ---------- hero ---------- */
+  .hero{text-align:left;}
+  .hero-grid{display:grid; grid-template-columns:1fr; gap:32px; align-items:center;}
+  .hero-mascot-wrap{position:relative; width:200px; height:260px; margin:0 auto;}
+  .hero h1{font-size:clamp(2.1rem,8vw,3.5rem); letter-spacing:-.01em;}
+  .hero .sub{font-size:clamp(1rem,3vw,1.15rem); max-width:56ch;}
+  .hero-intro{opacity:0; animation:introUp .7s ease forwards;}
+  .hero-intro.i1{animation-delay:.05s;} .hero-intro.i2{animation-delay:.2s;} .hero-intro.i3{animation-delay:.38s;} .hero-intro.i4{animation-delay:.56s;} .hero-intro.i5{animation-delay:.74s;}
+  @keyframes introUp{from{opacity:0; transform:translateY(22px);} to{opacity:1; transform:translateY(0);}}
+  .bubble{
+    position:relative; background:var(--cloth); border:2.4px solid var(--ink);
+    border-radius:16px; padding:10px 16px; font-family:var(--label); font-weight:600;
+    font-size:.92rem; max-width:230px; margin:14px auto 0;
+  }
+  .bubble:after{
+    content:""; position:absolute; top:-9px; left:50%; transform:translateX(-50%) rotate(45deg);
+    width:16px; height:16px; background:var(--cloth); border-left:2.4px solid var(--ink); border-top:2.4px solid var(--ink);
+  }
+  .scrolldown{
+    display:inline-flex; align-items:center; gap:8px; margin-top:34px; border:none; background:none;
+    font-family:var(--label); font-weight:700; color:var(--ink); cursor:pointer; font-size:.88rem;
+  }
+  .scrolldown .arrow{animation:bob 1.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(5px);}}
+
+  /* ---------- cards / grids ---------- */
+  .cardgrid{display:grid; grid-template-columns:1fr; gap:16px; margin:22px 0;}
+  .card{
+    background:var(--cloth); border:2.2px solid var(--ink); border-radius:16px; padding:20px 22px;
+  }
+  .card .clabel{
+    display:inline-block; font-family:var(--label); font-weight:700; font-size:.85rem;
+    margin-bottom:8px;
+  }
+  .card.a{border-color:var(--ink);}
+  .card.b{border-color:var(--ink); background:#FBF7EE;}
+
+  .callout{
+    display:flex; gap:10px; align-items:flex-start;
+    border:2.2px dashed var(--orange); border-radius:16px; padding:16px 18px; margin-top:18px;
+    font-weight:600; font-size:.98rem; background:rgba(228,98,45,.05);
+  }
+  .callout.note{border-color:var(--violet); background:rgba(139,127,199,.06);}
+  .callout .spark-i{flex-shrink:0; margin-top:2px;}
+
+  .checklist{list-style:none; margin:18px 0; padding:0; display:grid; gap:10px;}
+  .checklist li{display:flex; gap:10px; align-items:flex-start; font-size:1rem;}
+  .checklist li .ico{flex-shrink:0; font-size:1.15rem; line-height:1.4;}
+
+  .steps{list-style:none; margin:20px 0; padding:0; display:grid; gap:14px; counter-reset:stp;}
+  .steps li{
+    counter-increment:stp; display:flex; gap:14px; align-items:flex-start;
+    background:var(--cloth); border:2px solid var(--ink); border-radius:14px; padding:14px 16px;
+  }
+  .steps li:before{
+    content:counter(stp); flex-shrink:0; width:30px; height:30px; border-radius:50%;
+    background:var(--orange); color:var(--cloth); font-family:var(--label); font-weight:700;
+    display:flex; align-items:center; justify-content:center; font-size:.92rem;
+  }
+
+  .flow{display:grid; gap:0; margin:20px 0;}
+  .flowitem{
+    background:var(--cloth); border:2px solid var(--ink); border-radius:14px; padding:13px 16px;
+    font-size:.98rem; font-weight:600;
+  }
+  .flowarrow{
+    text-align:center; font-family:var(--label); color:var(--orange); font-weight:800; font-size:1.1rem;
+    padding:4px 0;
+  }
+
+  .chipgrid{display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;}
+  .chip{
+    background:var(--cloth); border:1.8px solid var(--ink); border-radius:999px;
+    padding:8px 15px; font-size:.88rem; font-weight:600;
+  }
+
+  .mistakes{list-style:none; margin:20px 0; padding:0; display:grid; gap:12px;}
+  .mistakes li{
+    background:var(--cloth); border:2px solid var(--ink); border-radius:14px; padding:14px 16px;
+    font-size:.95rem; line-height:1.55;
+  }
+  .mistakes b{color:var(--red);}
+  .mistakes .to{color:var(--teal); font-weight:700;}
+
+  .outro-checks{list-style:none; margin:20px 0; padding:0; display:grid; gap:10px;}
+  .outro-checks li{
+    display:flex; gap:10px; font-weight:700; font-size:1.02rem; align-items:flex-start;
+  }
+
+  .foot-note{font-size:.85rem; opacity:.7; margin-top:6px;}
+  .save-cue{
+    display:inline-flex; align-items:center; gap:6px; font-family:var(--label); font-weight:700;
+    margin-top:6px;
+  }
+
+  /* ---------- progress rail (desktop) ---------- */
+  .rail{
+    position:fixed; right:22px; top:50%; transform:translateY(-50%);
+    display:none; flex-direction:column; align-items:center; gap:10px; z-index:40;
+  }
+  .rail-track{
+    position:absolute; top:8px; bottom:8px; left:50%; transform:translateX(-50%);
+    width:0; border-left:2px dashed rgba(28,27,24,.3); z-index:-1;
+  }
+  .rail-dot{
+    width:13px; height:13px; border-radius:50%; background:var(--cloth);
+    border:2px solid var(--ink); cursor:pointer; padding:0;
+  }
+  .rail-dot.active{background:var(--orange); border-color:var(--orange); transform:scale(1.25);}
+
+  .mobile-progress{
+    position:fixed; top:14px; right:14px; z-index:40;
+    background:var(--cloth); border:2px solid var(--ink); border-radius:999px;
+    padding:6px 13px; font-family:var(--label); font-weight:700; font-size:.85rem;
+  }
+
+  @media (min-width:860px){
+    .hero-grid{grid-template-columns:1fr 320px;}
+    .hero-mascot-wrap{width:280px; height:340px;}
+    .cardgrid.two, .permgrid{grid-template-columns:1fr 1fr;}
+    .rail{display:flex;}
+    .mobile-progress{display:none;}
+    .panel{padding-right:80px;}
+  }
+  @media (max-width:520px){
+    .hero-mascot-wrap{width:170px; height:220px;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    .reveal{transition:none; opacity:1; transform:none;}
+    .hero-intro{animation:none; opacity:1;}
+    .float, .scrolldown .arrow{animation:none;}
+  }
+
+  /* ---------- music player ---------- */
+  .music-player{
+    position:fixed; left:14px; bottom:14px; z-index:50;
+    display:flex; align-items:center; gap:10px;
+    background:var(--cloth); border:2.2px solid var(--ink); border-radius:999px;
+    padding:8px 14px 8px 8px; font-family:var(--label); box-shadow:3px 3px 0 rgba(28,27,24,.15);
+  }
+  .music-player button{
+    width:34px; height:34px; border-radius:50%; border:2px solid var(--ink);
+    background:var(--orange); color:var(--cloth); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0;
+    padding:0;
+  }
+  .music-player button:hover{background:var(--orange-2);}
+  .music-player input[type="range"]{
+    width:90px; accent-color:var(--orange); cursor:pointer;
+  }
+  .music-player .mp-label{font-size:.78rem; font-weight:700; white-space:nowrap; opacity:.75;}
+  @media (max-width:520px){
+    .music-player{left:8px; bottom:8px; padding:6px 10px 6px 6px;}
+    .music-player input[type="range"]{width:64px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- reusable sparkle symbol -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="spark" viewBox="0 0 24 24">
+      <path d="M12 0 L14.2 9.2 L24 12 L14.2 14.8 L12 24 L9.8 14.8 L0 12 L9.8 9.2 Z"/>
+    </symbol>
+    <symbol id="knot-ico" viewBox="0 0 24 24">
+      <path d="M12 2c-2 3-2 5 0 7s2 4 0 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+      <circle cx="12" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="2.2"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ===================== OYEN MASCOT TEMPLATES ===================== -->
+<template id="tpl-oyen-calm">
+<svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+  <path d="M84,40 C76,30 76,16 88,6 C88,20 90,32 94,42 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M98,40 C96,24 98,8 102,2 C106,10 106,26 106,40 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M112,42 C118,28 120,14 112,4 C110,18 108,30 106,42 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M78,128 C62,132 54,150 60,168 C64,178 76,182 84,176 C82,160 80,144 78,128 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M122,128 C138,132 146,150 140,168 C136,178 124,182 116,176 C118,160 120,144 122,128 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M72,150 C60,178 56,208 62,224 C66,234 78,242 100,244 C122,242 134,234 138,224 C144,208 140,178 128,150 C133,140 132,128 124,120 L76,120 C68,128 67,140 72,150 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="100" cy="222" rx="26" ry="9" fill="none" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M66,120 C58,108 56,90 62,74 C68,56 82,44 100,44 C118,44 132,56 138,74 C144,90 142,108 134,120 C122,112 78,112 66,120 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="100" cy="46" rx="24" ry="10" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3"/>
+  <ellipse cx="88" cy="168" rx="13" ry="15" fill="var(--fur)" stroke="var(--ink)" stroke-width="3" transform="rotate(-18 88 168)"/>
+  <ellipse cx="112" cy="168" rx="13" ry="15" fill="var(--fur)" stroke="var(--ink)" stroke-width="3" transform="rotate(18 112 168)"/>
+  <ellipse cx="100" cy="90" rx="32" ry="30" fill="var(--fur)" stroke="var(--ink)" stroke-width="3.5"/>
+  <ellipse cx="86" cy="98" rx="6" ry="4.4" fill="#F7B9C9" opacity=".55"/>
+  <ellipse cx="114" cy="98" rx="6" ry="4.4" fill="#F7B9C9" opacity=".55"/>
+  <path d="M86,68 q4,-8 10,-8" stroke="var(--fur-dark)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M100,64 q4,-9 10,-7" stroke="var(--fur-dark)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M112,68 q6,-6 12,-4" stroke="var(--fur-dark)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <ellipse cx="100" cy="104" rx="15" ry="10" fill="#FFFFFF" stroke="var(--ink)" stroke-width="2.5"/>
+  <path d="M83,80 q7,-4 13,-1" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M104,79 q7,-3 13,1" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <circle cx="90" cy="88" r="4.4" fill="var(--ink)"/><circle cx="91.4" cy="86.6" r="1.2" fill="#fff"/>
+  <circle cx="110" cy="88" r="4.4" fill="var(--ink)"/><circle cx="111.4" cy="86.6" r="1.2" fill="#fff"/>
+  <path d="M96,95 L104,95 L100,100 Z" fill="#F4A9C0" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M92,104 Q100,110 108,104" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>
+</template>
+
+<template id="tpl-oyen-point">
+<svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+  <path d="M84,40 C76,30 76,16 88,6 C88,20 90,32 94,42 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M98,40 C96,24 98,8 102,2 C106,10 106,26 106,40 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M112,42 C118,28 120,14 112,4 C110,18 108,30 106,42 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M76,130 C58,136 50,156 58,174 C63,184 76,186 84,178 C82,162 80,146 76,130 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M124,128 C140,120 156,104 160,84 C162,74 156,66 146,68 C142,84 134,102 122,116 C120,120 121,125 124,128 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M72,150 C60,178 56,208 62,224 C66,234 78,242 100,244 C122,242 134,234 138,224 C144,208 140,178 128,150 C133,140 132,128 124,120 L76,120 C68,128 67,140 72,150 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="100" cy="222" rx="26" ry="9" fill="none" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M66,120 C58,108 56,90 62,74 C68,56 82,44 100,44 C118,44 132,56 138,74 C144,90 142,108 134,120 C122,112 78,112 66,120 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="100" cy="46" rx="24" ry="10" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3"/>
+  <ellipse cx="82" cy="172" rx="13" ry="15" fill="var(--fur)" stroke="var(--ink)" stroke-width="3" transform="rotate(-10 82 172)"/>
+  <g transform="rotate(-35 156 72)">
+    <rect x="150" y="50" width="9" height="18" rx="4.5" fill="var(--fur)" stroke="var(--ink)" stroke-width="2.3"/>
+    <ellipse cx="156" cy="74" rx="13" ry="14" fill="var(--fur)" stroke="var(--ink)" stroke-width="3"/>
+  </g>
+  <ellipse cx="100" cy="90" rx="32" ry="30" fill="var(--fur)" stroke="var(--ink)" stroke-width="3.5"/>
+  <ellipse cx="86" cy="98" rx="6" ry="4.4" fill="#F7B9C9" opacity=".55"/>
+  <ellipse cx="114" cy="98" rx="6" ry="4.4" fill="#F7B9C9" opacity=".55"/>
+  <path d="M86,66 q4,-9 10,-9" stroke="var(--fur-dark)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M100,62 q4,-10 10,-8" stroke="var(--fur-dark)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M112,66 q6,-7 12,-5" stroke="var(--fur-dark)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <ellipse cx="100" cy="104" rx="15" ry="10" fill="#FFFFFF" stroke="var(--ink)" stroke-width="2.5"/>
+  <path d="M82,78 q8,-6 14,-2" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M104,76 q8,-5 14,0" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <circle cx="90" cy="87" r="4.6" fill="var(--ink)"/><circle cx="91.6" cy="85.4" r="1.3" fill="#fff"/>
+  <circle cx="110" cy="87" r="4.6" fill="var(--ink)"/><circle cx="111.6" cy="85.4" r="1.3" fill="#fff"/>
+  <path d="M96,95 L104,95 L100,100 Z" fill="#F4A9C0" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M91,103 Q100,113 109,103" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>
+</template>
+
+<template id="tpl-oyen-think">
+<svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+  <path d="M84,40 C76,30 76,16 88,6 C88,20 90,32 94,42 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M98,40 C96,24 98,8 102,2 C106,10 106,26 106,40 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M112,42 C118,28 120,14 112,4 C110,18 108,30 106,42 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M76,130 C58,136 50,156 58,174 C63,184 76,186 84,178 C82,162 80,146 76,130 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M124,128 C136,124 142,114 136,104 C130,96 118,98 112,104 C110,110 112,118 118,124 C120,126 122,127 124,128 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M72,150 C60,178 56,208 62,224 C66,234 78,242 100,244 C122,242 134,234 138,224 C144,208 140,178 128,150 C133,140 132,128 124,120 L76,120 C68,128 67,140 72,150 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="100" cy="222" rx="26" ry="9" fill="none" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M66,120 C58,108 56,90 62,74 C68,56 82,44 100,44 C118,44 132,56 138,74 C144,90 142,108 134,120 C122,112 78,112 66,120 Z" fill="var(--cloth)" stroke="var(--ink)" stroke-width="4" stroke-linejoin="round"/>
+  <ellipse cx="100" cy="46" rx="24" ry="10" fill="var(--cloth)" stroke="var(--ink)" stroke-width="3"/>
+  <ellipse cx="82" cy="172" rx="13" ry="15" fill="var(--fur)" stroke="var(--ink)" stroke-width="3" transform="rotate(-10 82 172)"/>
+  <ellipse cx="116" cy="104" rx="12" ry="13" fill="var(--fur)" stroke="var(--ink)" stroke-width="3" transform="rotate(15 116 104)"/>
+  <ellipse cx="100" cy="90" rx="32" ry="30" fill="var(--fur)" stroke="var(--ink)" stroke-width="3.5"/>
+  <ellipse cx="86" cy="98" rx="6" ry="4.4" fill="#F7B9C9" opacity=".5"/>
+  <ellipse cx="114" cy="98" rx="6" ry="4.4" fill="#F7B9C9" opacity=".5"/>
+  <path d="M86,68 q4,-8 10,-8" stroke="var(--fur-dark)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M100,64 q4,-9 10,-7" stroke="var(--fur-dark)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M112,68 q6,-6 12,-4" stroke="var(--fur-dark)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <ellipse cx="100" cy="104" rx="15" ry="10" fill="#FFFFFF" stroke="var(--ink)" stroke-width="2.5"/>
+  <path d="M83,81 q7,-1 13,0" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M104,77 q7,-6 13,-2" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <circle cx="88" cy="88" r="4.4" fill="var(--ink)"/><circle cx="89.4" cy="86.6" r="1.2" fill="#fff"/>
+  <circle cx="108" cy="87" r="4.4" fill="var(--ink)"/><circle cx="109.4" cy="85.6" r="1.2" fill="#fff"/>
+  <path d="M94,95 L102,95 L98,100 Z" fill="#F4A9C0" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M92,105 q6,2 13,0" stroke="var(--ink)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>
+</template>
+
+<!-- ===================== PROGRESS NAV ===================== -->
+<nav class="rail" aria-label="Kemajuan panduan">
+  <div class="rail-track"></div>
+  <button class="rail-dot" data-target="p1" aria-label="Bahagian 1"></button>
+  <button class="rail-dot" data-target="p2" aria-label="Bahagian 2"></button>
+  <button class="rail-dot" data-target="p3" aria-label="Bahagian 3"></button>
+  <button class="rail-dot" data-target="p4" aria-label="Bahagian 4"></button>
+  <button class="rail-dot" data-target="p5" aria-label="Bahagian 5"></button>
+  <button class="rail-dot" data-target="p6" aria-label="Bahagian 6"></button>
+  <button class="rail-dot" data-target="p7" aria-label="Bahagian 7"></button>
+  <button class="rail-dot" data-target="p8" aria-label="Bahagian 8"></button>
+  <button class="rail-dot" data-target="p9" aria-label="Bahagian 9"></button>
+</nav>
+<div class="mobile-progress" aria-hidden="true"><span id="mp-current">1</span>/9</div>
+
+<main class="deck">
+
+  <!-- ============ 1/9 HERO ============ -->
+  <section id="p1" class="panel hero" aria-labelledby="h1title">
+    <div class="panel-inner">
+      <div class="paneltop hero-intro i1">
+        <a class="brandmark" href="https://www.threads.com/@oyen_berpocong" target="_blank" rel="noopener noreferrer" style="text-decoration:none;"><svg class="knot" viewBox="0 0 24 24"><use href="#knot-ico"/></svg>@oyenberpocong</a>
+        <span class="badge">1/9</span>
+      </div>
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow hero-intro i1">PANDUAN BEGINNER</span>
+          <h1 id="h1title" class="hero-intro i2">COWORK BUKAN<br>CHAT BIASA.</h1>
+          <span class="rule hero-intro i2"></span>
+          <p class="sub hero-intro i3">Chat tu kau bawak kerja pi Claude. <strong>Claude Cowork</strong> ni sebaliknya — Claude yang datang terus kat fail, folder, dengan kerja sebenar kau dalam <span class="uilabel">Claude Desktop</span>. Dia execute banyak step sekali gus, kau boleh scroll lain sekejap, then balik tengok hasil siap.</p>
+          <p class="foot-note hero-intro i4">9 bahagian pendek. Takde jargon berat-berat. Jom.</p>
+        </div>
+        <div class="hero-intro i3">
+          <div class="hero-mascot-wrap float">
+            <div class="mascot" data-pose="point"></div>
+          </div>
+          <div class="bubble">korang dah sedia belum? scroll jom 👇</div>
+        </div>
+      </div>
+      <button class="scrolldown hero-intro i5" onclick="document.getElementById('p2').scrollIntoView({behavior:'smooth'})">
+        SCROLL UNTUK START <span class="arrow">↓</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ 2/9 CHAT VS COWORK ============ -->
+  <section id="p2" class="panel" aria-labelledby="h2title">
+    <div class="panel-inner">
+      <div class="paneltop">
+        <a class="brandmark" href="https://www.threads.com/@oyen_berpocong" target="_blank" rel="noopener noreferrer" style="text-decoration:none;"><svg class="knot" viewBox="0 0 24 24"><use href="#knot-ico"/></svg>@oyenberpocong</a>
+        <span class="badge">2/9</span>
+      </div>
+      <span class="eyebrow reveal">MENTAL MODEL</span>
+      <h2 id="h2title" class="reveal d1">CHAT VS COWORK — APA BEZA SEBENAR?</h2>
+      <span class="rule reveal d1"></span>
+      <div class="cardgrid two reveal d2">
+        <div class="card a">
+          <span class="clabel">💬 CHAT</span>
+          <p>Kau upload fail, taip soalan, borak balik-balik. Sesuai bila nak jawapan cepat, brainstorm idea, atau minta pendapat pasal sesuatu.</p>
+        </div>
+        <div class="card b">
+          <span class="clabel">🗂️ <span class="uilabel">COWORK</span></span>
+          <p>Kau bagi Claude akses folder / apps kau, describe outcome yang kau nak, dia execute banyak step sampai siap — kau tak perlu tunggu depan skrin.</p>
+        </div>
+      </div>
+      <div class="callout reveal d3">
+        <svg class="spark-i" width="20" height="20"><use href="#spark" style="fill:var(--orange)"/></svg>
+        <span>Rule simple: <strong>Chat</strong> untuk jawapan. <strong>Cowork</strong> untuk kerja yang berlapis-lapis dan keluar fail last-last.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3/9 REQUIREMENTS ============ -->
+  <section id="p3" class="panel" aria-labelledby="h3title">
+    <div class="panel-inner">
+      <div class="paneltop">
+        <a class="brandmark" href="https://www.threads.com/@oyen_berpocong" target="_blank" rel="noopener noreferrer" style="text-decoration:none;"><svg class="knot" viewBox="0 0 24 24"><use href="#knot-ico"/></svg>@oyenberpocong</a>
+        <span class="badge">3/9</span>
+      </div>
+      <span class="eyebrow reveal">SEBELUM START</span>
+      <h3 id="h3title" class="reveal d1">KAU PERLUKAN 3 BENDA NI DULU</h3>
+      <span class="rule reveal d1"></span>
+      <ul class="checklist reveal d2">
+        <li><span class="ico">✅</span><span><span class="uilabel">Claude Desktop</span> app — Mac, Windows, atau Linux (beta). Bukan boleh guna kat browser website je.</span></li>
+        <li><span class="ico">✅</span><span>Plan berbayar — <span class="uilabel">Pro</span>, <span class="uilabel">Max</span>, <span class="uilabel">Team</span>, atau <span class="uilabel">Enterprise</span>. Free plan takde Cowork.</span></li>
+        <li><span class="ico">✅</span><span>Internet still connect sepanjang task tu jalan.</span></li>
+      </ul>
+      <div class="callout note reveal d3">
+        <svg class="spark-i" width="20" height="20"><use href="#spark" style="fill:var(--violet)"/></svg>
+        <span>Boleh guna phone gak — tapi phone tu jadi macam remote control je. Desktop kau kena tetap terbuka dengan takleh sleep, sebab situ la Cowork betul-betul jalan.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4/9 HOW TO OPEN ============ -->
+  <section id="p4" class="panel" aria-labelledby="h4title">
+    <div class="panel-inner">
+      <div class="paneltop">
+        <a class="brandmark" href="https://www.threads.com/@oyen_berpocong" target="_blank" rel="noopener noreferrer" style="text-decoration:none;"><svg class="knot" viewBox="0 0 24 24"><use href="#knot-ico"/></svg>@oyenberpocong</a>
+        <span class="badge">4/9</span>
+      </div>
+      <span class="eyebrow reveal">FIRST SESSION</span>
+      <h3 id="h4title" class="reveal d1">5 STEP UNTUK START</h3>
+      <span class="rule reveal d1"></span>
+      <ol class="steps reveal d2">
+        <li>Bukak <span class="uilabel">Claude Desktop</span> app.</li>
+        <li>Cari mode selector — ada butang <span class="uilabel">Chat</span> dengan <span class="uilabel">Cowork</span>.</li>
+        <li>Klik tab <span class="uilabel">Cowork</span> — view dia tukar jadi Tasks.</li>
+        <li>Describe task yang kau nak siapkan. Lagi detail konteks kau bagi, lagi power hasil dia.</li>
+        <li>Claude tunjuk plan dia dulu — check, baru let it run.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ 5/9 WHAT HAPPENS BEHIND THE SCENES ============ -->
+  <section id="p5" class="panel" aria-labelledby="h5title">
+    <div class="panel-inner">
+      <div class="paneltop">
+        <a class="brandmark" href="https://www.threads.com/@oyen_berpocong" target="_blank" rel="noopener noreferrer" style="text-decoration:none;"><svg class="knot" viewBox="0 0 24 24"><use href="#knot-ico"/></svg>@oyenberpocong</a>
+        <span class="badge">5/9</span>
+      </div>
+      <span class="eyebrow reveal">DI BELAKANG TABIR</span>
+      <h3 id="h5title" class="reveal d1">LEPAS TU, APA CLAUDE BUAT?</h3>
+      <span class="rule reveal d1"></span>
+      <div class="flow reveal d2">
+        <div class="flowitem">1. Analyze request dengan susun plan</div>
+        <div class="flowarrow">↓</div>
+        <div class="flowitem">2. Breakdown jadi sub-task kalau kerja tu besar</div>
+        <div class="flowarrow">↓</div>
+        <div class="flowitem">3. Run code / command dalam VM berasing — bukan terus kat OS kau</div>
+        <div class="flowarrow">↓</div>
+        <div class="flowitem">4. Boleh handle beberapa workstream sekali gus (parallel)</div>
+        <div class="flowarrow">↓</div>
+        <div class="flowitem">5. Hantar hasil terus masuk file system kau</div>
+      </div>
+      <div class="callout reveal d3">
+        <svg class="spark-i" width="20" height="20"><use href="#spark" style="fill:var(--orange)"/></svg>
+        <span>Sepanjang proses, kau still nampak apa dia buat step by step — boleh steer bila-bila, atau biar dia settle sorang-sorang.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6/9 WHEN TO USE / EXAMPLES ============ -->
+  <section id="p6" class="panel" aria-labelledby="h6title">
+    <div class="panel-inner">
+      <div class="paneltop">
+        <a class="brandmark" href="https://www.threads.com/@oyen_berpocong" target="_blank" rel="noopener noreferrer" style="text-decoration:none;"><svg class="knot" viewBox="0 0 24 24"><use href="#knot-ico"/></svg>@oyenberpocong</a>
+        <span class="badge">6/9</span>
+      </div>
+      <span class="eyebrow reveal">BILA GUNA APA</span>
+      <h3 id="h6title" class="reveal d1">BILA PATUT GUNA COWORK?</h3>
+      <span class="rule reveal d1"></span>
+      <ul class="checklist reveal d2">
+        <li><span class="ico">🔎</span><span>Lebih dari satu input masuk — beberapa fail, satu folder penuh, atau connector apps.</span></li>
+        <li><span class="ico">🔎</span><span>Ada fail deliverable yang kuar last-last — doc, deck, ke spreadsheet.</span></li>
+        <li><span class="ico">🔎</span><span>Kerja yang kau bakal ulang lagi lepas ni, bukan sekali sahaja.</span></li>
+      </ul>
+      <p class="reveal d3" style="font-weight:700; margin-top:18px;">CONTOH KERJA YANG SESUAI:</p>
+      <div class="chipgrid reveal d3">
+        <span class="chip">Susun folder Downloads ikut jenis dengan tarikh</span>
+        <span class="chip">Resit → expense report siap format</span>
+        <span class="chip">Gabung research jadi satu report</span>
+        <span class="chip">Excel dengan formula betul, bukan CSV mentah</span>
+        <span class="chip">Nota mesyuarat → slide deck</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 7/9 PERMISSION MODES + SAFETY ============ -->
+  <section id="p7" class="panel" aria-labelledby="h7title">
+    <div class="panel-inner">
+      <div class="paneltop">
+        <a class="brandmark" href="https://www.threads.com/@oyen_berpocong" target="_blank" rel="noopener noreferrer" style="text-decoration:none;"><svg class="knot" viewBox="0 0 24 24"><use href="#knot-ico"/></svg>@oyenberpocong</a>
+        <span class="badge">7/9</span>
+      </div>
+      <span class="eyebrow reveal">MAIN SELAMAT</span>
+      <h3 id="h7title" class="reveal d1">2 MODE PERMISSION — PILIH BIJAK</h3>
+      <span class="rule reveal d1"></span>
+      <div class="cardgrid permgrid reveal d2">
+        <div class="card a">
+          <span class="clabel">🔍 <span class="uilabel">Ask before acting</span></span>
+          <p>Disyorkan untuk newbie. Claude stop dengan tanya approval kau setiap kali nak buat action. Best untuk tools atau fail yang kau tak biasa lagi.</p>
+        </div>
+        <div class="card b">
+          <span class="clabel">⚡ <span class="uilabel">Act without asking</span></span>
+          <p>Dia jalan terus tanpa tanya. Laju, tapi risiko lagi tinggi. Guna je bila kau tengah supervise dengan fail/sumber tu memang dipercayai.</p>
+        </div>
+      </div>
+      <div class="callout note reveal d3">
+        <svg class="spark-i" width="20" height="20"><use href="#spark" style="fill:var(--violet)"/></svg>
+        <span>Delete fail — Claude MESTI tanya izin dulu, walau mode mana pun kau pakai.</span>
+      </div>
+      <div style="display:flex; gap:20px; align-items:flex-start; margin-top:26px;" class="reveal d4">
+        <div class="hero-mascot-wrap" style="width:110px; height:140px; flex-shrink:0;">
+          <div class="mascot" data-pose="think"></div>
+        </div>
+        <ul class="checklist" style="margin:0;">
+          <li><span class="ico">🔒</span><span>Jangan bagi akses folder sensitive (dokumen bank, credential) awal-awal lagi.</span></li>
+          <li><span class="ico">🔒</span><span>Boleh kena <em>prompt injection</em> — arahan jahat yang sorok dalam email/website yang Claude baca. Nampak dia buat benda luar topic, stop task tu terus.</span></li>
+          <li><span class="ico">🔒</span><span>Scheduled task (auto-run) — start dengan kerja simple dulu sebelum automate benda besar.</span></li>
+          <li><span class="ico">🔒</span><span>Apa-apa action Claude buat atas nama kau, kau yang bertanggungjawab — review dulu sebelum benda tu keluar (hantar, publish, beli).</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 8/9 COMMON MISTAKES ============ -->
+  <section id="p8" class="panel" aria-labelledby="h8title">
+    <div class="panel-inner">
+      <div class="paneltop">
+        <a class="brandmark" href="https://www.threads.com/@oyen_berpocong" target="_blank" rel="noopener noreferrer" style="text-decoration:none;"><svg class="knot" viewBox="0 0 24 24"><use href="#knot-ico"/></svg>@oyenberpocong</a>
+        <span class="badge">8/9</span>
+      </div>
+      <span class="eyebrow reveal">JANGAN TERPERANGKAP</span>
+      <h3 id="h8title" class="reveal d1">SILAP YANG BEGINNER SELALU BUAT</h3>
+      <span class="rule reveal d1"></span>
+      <ul class="mistakes reveal d2">
+        <li><b>Ingat Cowork boleh jalan kat browser atau phone sorang-sorang.</b> <span class="to">→</span> Kena desktop app. Phone cuma jadi remote bila desktop dah on.</li>
+        <li><b>Ingat free plan pun boleh cuba.</b> <span class="to">→</span> Kena plan berbayar (Pro / Max / Team / Enterprise).</li>
+        <li><b>Terus pakai Act without asking sebab nak laju.</b> <span class="to">→</span> Start dengan Ask before acting sampai kau confident.</li>
+        <li><b>Bagi akses satu folder besar termasuk benda sensitive.</b> <span class="to">→</span> Buat folder khas untuk kerja Cowork je.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 9/9 OUTRO / CTA ============ -->
+  <section id="p9" class="panel" aria-labelledby="h9title">
+    <div class="panel-inner">
+      <div class="paneltop">
+        <a class="brandmark" href="https://www.threads.com/@oyen_berpocong" target="_blank" rel="noopener noreferrer" style="text-decoration:none;"><svg class="knot" viewBox="0 0 24 24"><use href="#knot-ico"/></svg>@oyenberpocong</a>
+        <span class="badge">9/9</span>
+      </div>
+      <div class="hero-grid">
+        <div>
+          <span class="eyebrow reveal">RECAP</span>
+          <h3 id="h9title" class="reveal d1">POINT SEBENAR</h3>
+          <span class="rule reveal d1"></span>
+          <ul class="outro-checks reveal d2">
+            <li>✅ Cowork = Claude betul-betul kerja kat fail dengan app kau, bukan sekadar reply chat.</li>
+            <li>✅ Kena desktop app dengan plan berbayar.</li>
+            <li>✅ Start slow — Ask before acting, folder khas, task simple dulu.</li>
+          </ul>
+          <div class="callout reveal d3">
+            <svg class="spark-i" width="20" height="20"><use href="#spark" style="fill:var(--orange)"/></svg>
+            <span>Ni starter guide je dari @oyenberpocong. Details penuh dengan paling update, check terus kat <strong>support.claude.com</strong>.</span>
+          </div>
+          <p class="foot-note reveal d4" style="margin-top:22px;">Cuba first task simple korang: <em>"Susun folder Downloads aku ikut jenis file."</em></p>
+          <div class="save-cue reveal d4">SAVE POST NI UNTUK RUJUK BALIK 🔖</div>
+          <p class="foot-note reveal d4" style="margin-top:18px; opacity:.55;">Panduan fan-made, bukan laman rasmi Anthropic.</p>
+        </div>
+        <div class="reveal d3">
+          <div class="hero-mascot-wrap float" style="width:190px; height:240px;">
+            <div class="mascot" data-pose="point"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===================== BACKGROUND MUSIC PLAYER ===================== -->
+<audio id="bg-music" src="assets/background-music.mp3" loop preload="auto"></audio>
+<div class="music-player" role="group" aria-label="Kawalan muzik latar">
+  <button id="mp-toggle" type="button" aria-label="Main / jeda muzik">▶</button>
+  <button id="mp-mute" type="button" aria-label="Bisukan / bunyikan muzik">🔊</button>
+  <input id="mp-volume" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Volume muzik">
+  <span class="mp-label">MUSIC</span>
+</div>
+
+<script>
+(function () {
+  var audio = document.getElementById('bg-music');
+  var toggleBtn = document.getElementById('mp-toggle');
+  var muteBtn = document.getElementById('mp-mute');
+  var volumeSlider = document.getElementById('mp-volume');
+  var lastVolume = 0.5;
+
+  audio.volume = parseFloat(volumeSlider.value);
+
+  toggleBtn.addEventListener('click', function () {
+    if (audio.paused) {
+      audio.play().catch(function () {});
+    } else {
+      audio.pause();
+    }
+  });
+
+  audio.addEventListener('play', function () { toggleBtn.textContent = '⏸'; });
+  audio.addEventListener('pause', function () { toggleBtn.textContent = '▶'; });
+
+  volumeSlider.addEventListener('input', function () {
+    var v = parseFloat(volumeSlider.value);
+    audio.volume = v;
+    audio.muted = v === 0;
+    muteBtn.textContent = (v === 0) ? '🔇' : '🔊';
+    if (v > 0) { lastVolume = v; }
+  });
+
+  muteBtn.addEventListener('click', function () {
+    if (audio.muted || audio.volume === 0) {
+      audio.muted = false;
+      audio.volume = lastVolume || 0.5;
+      volumeSlider.value = audio.volume;
+      muteBtn.textContent = '🔊';
+    } else {
+      lastVolume = audio.volume;
+      audio.muted = true;
+      muteBtn.textContent = '🔇';
+    }
+  });
+})();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // clone mascot templates into placeholders
+  document.querySelectorAll('.mascot[data-pose]').forEach(function (el) {
+    var pose = el.getAttribute('data-pose');
+    var tpl = document.getElementById('tpl-oyen-' + pose);
+    if (tpl) { el.appendChild(tpl.content.cloneNode(true)); }
+  });
+
+  // scroll reveal
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { entry.target.classList.add('inview'); }
+      });
+    }, { threshold: 0.18 });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add('inview'); });
+  }
+
+  // progress rail + mobile counter
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.panel'));
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.rail-dot'));
+  var mpCurrent = document.getElementById('mp-current');
+
+  if ('IntersectionObserver' in window) {
+    var secIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          var idx = sections.indexOf(entry.target);
+          dots.forEach(function (d) { d.classList.remove('active'); });
+          if (dots[idx]) { dots[idx].classList.add('active'); }
+          if (mpCurrent) { mpCurrent.textContent = idx + 1; }
+        }
+      });
+    }, { threshold: 0.4 });
+    sections.forEach(function (s) { secIO.observe(s); });
+  }
+
+  dots.forEach(function (dot) {
+    dot.addEventListener('click', function () {
+      var target = document.getElementById(dot.getAttribute('data-target'));
+      if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+});
+</script>
+
+</body>
+</html>
