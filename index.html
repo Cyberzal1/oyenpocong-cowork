@@ -261,6 +261,21 @@
     .music-player{left:8px; bottom:8px; padding:6px 10px 6px 6px;}
     .music-player input[type="range"]{width:64px;}
   }
+
+  /* ---------- sound cue toast ---------- */
+  .sound-cue{
+    position:fixed; left:14px; bottom:70px; z-index:50;
+    background:var(--ink); color:var(--cloth);
+    font-family:var(--label); font-weight:700; font-size:.8rem;
+    padding:8px 14px; border-radius:999px;
+    opacity:0; transform:translateY(6px);
+    transition:opacity .4s ease, transform .4s ease;
+    pointer-events:none;
+    box-shadow:3px 3px 0 rgba(28,27,24,.15);
+  }
+  .sound-cue.show{opacity:1; transform:translateY(0);}
+  .sound-cue.hide{opacity:0; transform:translateY(-6px);}
+  @media (max-width:520px){ .sound-cue{left:8px; bottom:62px;} }
 </style>
 </head>
 <body>
@@ -638,6 +653,7 @@
   <input id="mp-volume" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Volume muzik">
   <span class="mp-label">MUSIC</span>
 </div>
+<div id="sound-cue" class="sound-cue">🎵 Tap mana-mana untuk sound</div>
 
 <script>
 (function () {
@@ -645,23 +661,40 @@
   var toggleBtn = document.getElementById('mp-toggle');
   var muteBtn = document.getElementById('mp-mute');
   var volumeSlider = document.getElementById('mp-volume');
+  var soundCue = document.getElementById('sound-cue');
   var lastVolume = 0.5;
 
   audio.volume = parseFloat(volumeSlider.value);
 
-  // --- autoplay: browsers always allow muted autoplay, so start there ---
+  // --- best-effort muted pre-play: purely cosmetic, never required.
+  // browsers usually allow this, but it's not guaranteed (extensions,
+  // per-site sound permissions, etc. can still block it) — so we never
+  // rely on it alone. logging the rejection reason so it's visible in
+  // console instead of silently swallowed.
   audio.muted = true;
   muteBtn.textContent = '🔇';
-  audio.play().catch(function () {});
+  audio.play().catch(function (err) {
+    console.log('[bg-music] muted pre-play skipped:', err && err.name);
+  });
 
-  // the moment the visitor does anything real (click/tap/key), unmute
-  // note: scroll is deliberately NOT included here — browsers don't count
-  // it as a "user gesture", so unmuting inside a scroll handler gets
-  // silently blocked and just wastes a listener
+  // show a visible, honest one-time cue instead of hoping people
+  // stumble into a silent global click listener
+  if (soundCue) {
+    setTimeout(function () { soundCue.classList.add('show'); }, 900);
+    setTimeout(function () { soundCue.classList.add('hide'); }, 8000);
+  }
+
+  // the moment the visitor does anything real (click/tap/key), unmute —
+  // this is a guaranteed, real user gesture, so play() here is never
+  // blocked by autoplay policy, regardless of whether the muted
+  // pre-play attempt above succeeded or not
   function unlockAudio() {
     audio.muted = false;
     muteBtn.textContent = '🔊';
-    audio.play().catch(function () {});
+    audio.play().catch(function (err) {
+      console.log('[bg-music] play on interaction failed:', err && err.name);
+    });
+    if (soundCue) { soundCue.classList.remove('show'); soundCue.classList.add('hide'); }
     window.removeEventListener('click', unlockAudio);
     window.removeEventListener('touchstart', unlockAudio);
     window.removeEventListener('keydown', unlockAudio);
